@@ -7,7 +7,13 @@ from app.config import settings
 from app.core.security import create_access_token, decode_access_token, hash_password, verify_password
 from app.database.models.user import User
 from app.database.repositories.user_repository import UserRepository
-from app.schemas.auth import LoginRequest, RegisterResponse, TokenResponse
+from app.schemas.auth import (
+    LinkTelegramRequest,
+    LoginRequest,
+    RegisterResponse,
+    TokenResponse,
+)
+from app.schemas.common import MessageResponse
 from app.schemas.user import UserCreate, UserRead
 
 router = APIRouter()
@@ -78,3 +84,23 @@ async def refresh_token(
         access_token=token,
         expires_in=settings.JWT_EXPIRY_MINUTES * 60,
     )
+
+
+@router.post("/link-telegram", response_model=MessageResponse)
+async def link_telegram(
+    data: LinkTelegramRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = UserRepository(db)
+    existing = await repo.get_by_telegram_chat(data.chat_id)
+    if existing and existing.id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Chat already linked to another user",
+        )
+    await repo.update(
+        current_user.id,
+        telegram_chat_id=data.chat_id,
+    )
+    return MessageResponse(message="Telegram chat linked successfully")

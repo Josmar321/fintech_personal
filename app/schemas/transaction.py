@@ -3,11 +3,11 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
-from app.domain.enums import TransactionType, TransactionSource
+from app.domain.enums import TransactionSource, TransactionStatus, TransactionType
 
 
 class TransactionBase(BaseModel):
-    account_id: int
+    account_id: int | None = None
     category_id: int | None = None
     description: str = Field(min_length=1, max_length=500)
     amount: Decimal = Field(max_digits=18, decimal_places=2)
@@ -18,6 +18,7 @@ class TransactionBase(BaseModel):
     is_flagged: bool = False
     notes: str | None = Field(max_length=2000, default=None)
     source: TransactionSource = TransactionSource.MANUAL
+    status: TransactionStatus = TransactionStatus.PENDING_CATEGORY
 
 
 class TransactionCreate(TransactionBase):
@@ -36,6 +37,7 @@ class TransactionUpdate(BaseModel):
     is_flagged: bool | None = None
     notes: str | None = Field(max_length=2000, default=None)
     source: TransactionSource | None = None
+    status: TransactionStatus | None = None
 
 
 class TransactionRead(TransactionBase):

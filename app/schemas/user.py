@@ -16,12 +16,14 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     full_name: str | None = Field(min_length=1, max_length=255, default=None)
     is_active: bool | None = None
+    telegram_chat_id: int | None = None
 
 
 class UserRead(UserBase):
     id: int
     is_active: bool
     is_superuser: bool
+    telegram_chat_id: int | None = None
     created_at: datetime
     updated_at: datetime
 

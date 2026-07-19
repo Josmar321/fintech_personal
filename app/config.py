@@ -24,9 +24,12 @@ class Settings(BaseSettings):
     IMAP_PORT: int = 993
     IMAP_USER: Optional[str] = None
     IMAP_PASS: Optional[str] = None
+    IMAP_POLL_INTERVAL: int = 300
+    IMAP_UNSEEN_ONLY: bool = True
 
     TELEGRAM_BOT_TOKEN: Optional[str] = None
     TELEGRAM_CHAT_ID: Optional[str] = None
+    TELEGRAM_WEBHOOK_SECRET: Optional[str] = None
 
     @property
     def database_url(self) -> str:

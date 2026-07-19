@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.models.transaction import Transaction
 from app.database.repositories.base import BaseRepository
-from app.domain.enums import TransactionType
+from app.domain.enums import TransactionStatus, TransactionType
 
 
 class TransactionRepository(BaseRepository[Transaction]):
@@ -41,6 +41,7 @@ class TransactionRepository(BaseRepository[Transaction]):
         account_id: int | None = None,
         category_id: int | None = None,
         type: TransactionType | None = None,
+        status: TransactionStatus | None = None,
         date_from: datetime | None = None,
         date_to: datetime | None = None,
         skip: int = 0,
@@ -54,6 +55,8 @@ class TransactionRepository(BaseRepository[Transaction]):
             stmt = stmt.where(Transaction.category_id == category_id)
         if type is not None:
             stmt = stmt.where(Transaction.type == type)
+        if status is not None:
+            stmt = stmt.where(Transaction.status == status)
         if date_from is not None:
             stmt = stmt.where(Transaction.date >= date_from)
         if date_to is not None:

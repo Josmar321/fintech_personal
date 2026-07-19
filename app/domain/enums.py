@@ -27,3 +27,9 @@ class TransactionSource(str, PyEnum):
     IMAP = "imap"
     API = "api"
     SYSTEM = "system"
+
+
+class TransactionStatus(str, PyEnum):
+    PENDING_CATEGORY = "pending_category"
+    CATEGORIZED = "categorized"
+    FLAGGED = "flagged"
