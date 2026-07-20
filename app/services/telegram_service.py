@@ -34,7 +34,7 @@ _INCOME_PATTERN = re.compile(
 )
 
 
-async def _send_message(chat_id: int, text: str, parse_mode: str = "Markdown") -> bool:
+async def send_message(chat_id: int, text: str, parse_mode: str = "Markdown") -> bool:
     if not settings.TELEGRAM_BOT_TOKEN:
         logger.warning("telegram_bot_token_missing")
         return False
@@ -61,7 +61,7 @@ async def _handle_pendientes(chat_id: int, user_id: int) -> None:
         )
 
     if not txns:
-        await _send_message(chat_id, "✅ No hay transacciones pendientes de categorizar.")
+        await send_message(chat_id, "✅ No hay transacciones pendientes de categorizar.")
         return
 
     lines = ["📋 *Transacciones pendientes:*\n"]
@@ -71,7 +71,7 @@ async def _handle_pendientes(chat_id: int, user_id: int) -> None:
         monto = f"${txn.amount:,.2f}"
         lines.append(f"{i}. {fecha} — *{monto}*\n   _{desc}_\n")
 
-    await _send_message(chat_id, "\n".join(lines))
+    await send_message(chat_id, "\n".join(lines))
 
 
 async def _handle_manual_entry(chat_id: int, user_id: int, text: str) -> None:
@@ -83,7 +83,7 @@ async def _handle_manual_entry(chat_id: int, user_id: int, text: str) -> None:
         is_expense = False
 
     if not match:
-        await _send_message(
+        await send_message(
             chat_id,
             "❌ No entendí. Usá formato:\n"
             "`Gasté 50 en transporte`\n"
@@ -94,7 +94,7 @@ async def _handle_manual_entry(chat_id: int, user_id: int, text: str) -> None:
     try:
         amount = Decimal(match.group(1).replace(",", "."))
     except InvalidOperation:
-        await _send_message(chat_id, "❌ No pude interpretar el monto.")
+        await send_message(chat_id, "❌ No pude interpretar el monto.")
         return
 
     description = match.group(2).strip().capitalize()
@@ -115,7 +115,7 @@ async def _handle_manual_entry(chat_id: int, user_id: int, text: str) -> None:
 
     emoji = "💸" if is_expense else "💰"
     label = "Gasto" if is_expense else "Ingreso"
-    await _send_message(
+    await send_message(
         chat_id,
         f"{emoji} *Registrado!*\n"
         f"Monto: *${amount:,.2f}*\n"
@@ -125,7 +125,7 @@ async def _handle_manual_entry(chat_id: int, user_id: int, text: str) -> None:
 
 
 async def _handle_start(chat_id: int, user_id: int, user_name: str) -> None:
-    await _send_message(
+    await send_message(
         chat_id,
         f"👋 *Bienvenido, {user_name}!*\n\n"
         "Comandos:\n"
@@ -149,7 +149,7 @@ async def process_telegram_message(msg: Message) -> None:
         name = "Usuario"
         if msg.from_:
             name = msg.from_.first_name
-        await _send_message(
+        await send_message(
             chat_id,
             f"👋 *Hola {name}!*\n\n"
             f"Tu *Chat ID* es: `{chat_id}`\n\n"
@@ -171,7 +171,7 @@ async def process_telegram_message(msg: Message) -> None:
         await _handle_manual_entry(chat_id, user.id, text)
 
     else:
-        await _send_message(
+        await send_message(
             chat_id,
             "❓ No reconozco ese comando.\n"
             "Usá `/pendientes` o escribí `Gasté 50 en transporte`.",

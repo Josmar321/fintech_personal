@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     TELEGRAM_CHAT_ID: Optional[str] = None
     TELEGRAM_WEBHOOK_SECRET: Optional[str] = None
 
+    GOOGLE_SHEETS_CREDENTIALS_PATH: Optional[str] = None
+    CONDO_SHEET_ID: Optional[str] = None
+
     @property
     def database_url(self) -> str:
         return str(

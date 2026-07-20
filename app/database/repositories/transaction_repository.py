@@ -1,77 +1,48 @@
 from datetime import datetime
+from decimal import Decimal
+from typing import Any, Sequence
 
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.database.base import BaseRepository
 from app.database.models.transaction import Transaction
-from app.database.repositories.base import BaseRepository
-from app.domain.enums import TransactionStatus, TransactionType
 
 
 class TransactionRepository(BaseRepository[Transaction]):
-    def __init__(self, session: AsyncSession):
-        super().__init__(session, Transaction)
-
-    async def get_by_user_id(
-        self, user_id: int, *, skip: int = 0, limit: int = 100
-    ) -> list[Transaction]:
-        result = await self.session.execute(
-            select(Transaction)
-            .where(Transaction.user_id == user_id)
-            .offset(skip)
-            .limit(limit)
-        )
-        return list(result.scalars().all())
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(Transaction, session)
 
     async def get_by_user_id_and_id(
         self, user_id: int, transaction_id: int
     ) -> Transaction | None:
-        result = await self.session.execute(
-            select(Transaction).where(
-                Transaction.id == transaction_id,
-                Transaction.user_id == user_id,
-            )
+        stmt = select(Transaction).where(
+            Transaction.user_id == user_id, Transaction.id == transaction_id
         )
+        result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_filtered(
+    async def get_existing_pairs(
         self,
         user_id: int,
-        *,
-        account_id: int | None = None,
-        category_id: int | None = None,
-        type: TransactionType | None = None,
-        status: TransactionStatus | None = None,
-        date_from: datetime | None = None,
-        date_to: datetime | None = None,
-        skip: int = 0,
-        limit: int = 100,
-    ) -> list[Transaction]:
-        stmt = select(Transaction).where(Transaction.user_id == user_id)
-
-        if account_id is not None:
-            stmt = stmt.where(Transaction.account_id == account_id)
-        if category_id is not None:
-            stmt = stmt.where(Transaction.category_id == category_id)
-        if type is not None:
-            stmt = stmt.where(Transaction.type == type)
-        if status is not None:
-            stmt = stmt.where(Transaction.status == status)
-        if date_from is not None:
-            stmt = stmt.where(Transaction.date >= date_from)
-        if date_to is not None:
-            stmt = stmt.where(Transaction.date <= date_to)
-
-        stmt = stmt.order_by(Transaction.date.desc()).offset(skip).limit(limit)
+        min_date: datetime,
+        max_date: datetime,
+        amount: Decimal,
+    ) -> set[tuple[str, str]]:
+        stmt = select(Transaction).where(
+            Transaction.user_id == user_id,
+            Transaction.date >= min_date,
+            Transaction.date <= max_date,
+            Transaction.amount == amount,
+        )
         result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        rows = result.scalars().all()
+        return {(r.date.strftime("%Y-%m-%d"), str(r.amount)) for r in rows}
 
-    async def delete_user_scoped(
-        self, user_id: int, transaction_id: int
-    ) -> bool:
-        transaction = await self.get_by_user_id_and_id(user_id, transaction_id)
-        if not transaction:
-            return False
-        await self.session.delete(transaction)
+    async def bulk_create_from_dicts(
+        self, items: list[dict[str, Any]]
+    ) -> Sequence[Transaction]:
+        transactions = [Transaction(**item) for item in items]
+        self.session.add_all(transactions)
         await self.session.flush()
-        return True
+        return transactions
