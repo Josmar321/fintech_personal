@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.dependencies import get_db
 from app.config import settings
 from app.schemas.telegram import TelegramUpdate
-from app.services.telegram_service import process_telegram_message
+from app.services.telegram_service import process_callback_query, process_incoming_message
 
 router = APIRouter()
 
@@ -26,8 +28,17 @@ async def verify_telegram_secret(
 @router.post("/webhook", status_code=status.HTTP_200_OK)
 async def telegram_webhook(
     update: TelegramUpdate,
+    db: AsyncSession = Depends(get_db),
     _=Depends(verify_telegram_secret),
 ):
-    if update.message:
-        await process_telegram_message(update.message)
+    if update.message and update.message.text:
+        chat_id = update.message.chat.id
+        text = update.message.text.strip()
+        await process_incoming_message(chat_id, text, db)
+        return {"ok": True}
+
+    if update.callback_query:
+        await process_callback_query(update.callback_query, db)
+        return {"ok": True}
+
     return {"ok": True}

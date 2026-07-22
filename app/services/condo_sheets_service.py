@@ -3,7 +3,6 @@ from datetime import datetime
 
 import gspread
 import structlog
-from google.oauth2.service_account import Credentials
 
 from app.config import settings
 
@@ -41,9 +40,12 @@ def register_water_payment(
     if sheet is None:
         return (False, "Manual verification required")
 
-    month_name = MONTH_NAMES.get(fecha_operacion.month)
+    target_month = fecha_operacion.month - 1
+    if target_month == 0:
+        target_month = 12
+    month_name = MONTH_NAMES.get(target_month)
     if not month_name:
-        logger.error("condo_invalid_month", month=fecha_operacion.month)
+        logger.error("condo_invalid_month", month=target_month)
         return (False, "Manual verification required")
 
     try:
@@ -101,10 +103,7 @@ def _get_sheet():
         logger.error("google_sheets_not_configured")
         return None
 
-    creds = Credentials.from_service_account_file(
-        settings.GOOGLE_SHEETS_CREDENTIALS_PATH, scopes=SCOPES
-    )
-    client = gspread.authorize(creds)
+    client = gspread.service_account(filename=settings.GOOGLE_SHEETS_CREDENTIALS_PATH)
     return client.open_by_key(settings.CONDO_SHEET_ID)
 
 

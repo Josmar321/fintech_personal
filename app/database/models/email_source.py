@@ -16,10 +16,10 @@ class EmailSource(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("users.id"), nullable=False, index=True
     )
     account_id: Mapped[int | None] = mapped_column(
-        ForeignKey("accounts.id", ondelete="SET NULL"), nullable=True
+        ForeignKey("accounts.id"), nullable=True
     )
     bank_name: Mapped[str] = mapped_column(String(100), nullable=False)
     imap_host: Mapped[str] = mapped_column(String(255), nullable=False)

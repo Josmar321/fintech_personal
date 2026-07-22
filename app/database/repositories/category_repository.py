@@ -15,6 +15,7 @@ class CategoryRepository(BaseRepository[Category]):
         result = await self.session.execute(
             select(Category)
             .where(Category.user_id == user_id)
+            .order_by(Category.id)
             .offset(skip)
             .limit(limit)
         )

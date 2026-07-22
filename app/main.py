@@ -11,12 +11,18 @@ from app.api.endpoints import accounts, auth, categories, telegram_bot, transact
 from app.config import settings
 from app.core.logging import setup_logging
 from app.core.rate_limiter import RateLimitMiddleware
-from app.database.connection import check_db_health, ensure_database
+from app.database.base import Base
+from app.database.connection import check_db_health, engine, ensure_database
 from app.services.imap_worker import run_imap_worker
 
 logger = structlog.get_logger()
 
 _worker_task: asyncio.Task | None = None
+
+
+async def run_migrations() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @asynccontextmanager
@@ -36,6 +42,12 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("database_initialized")
     except Exception as exc:
         logger.warning("database_init_skipped", error=str(exc))
+
+    try:
+        await run_migrations()
+        logger.info("migrations_applied")
+    except Exception as exc:
+        logger.warning("migrations_failed", error=str(exc))
 
     _worker_task = asyncio.create_task(run_imap_worker())
     logger.info("imap_worker_spawned")
@@ -76,7 +88,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["accounts"])
 app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
 app.include_router(transactions.router, prefix="/api/v1/transactions", tags=["transactions"])
-app.include_router(telegram_bot.router, prefix="/api/v1/telegram", tags=["telegram"])
+app.include_router(telegram_bot.router, prefix="/api/telegram", tags=["telegram"])
 
 
 @app.get("/health", tags=["system"])

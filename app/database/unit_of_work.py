@@ -6,11 +6,12 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.config import settings
+from app.database.connection import _build_url
 
 logger = structlog.get_logger()
 
 engine = create_async_engine(
-    settings.database_url,
+    _build_url(),
     echo=settings.DEBUG,
     pool_pre_ping=True,
     pool_size=5,

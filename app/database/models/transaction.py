@@ -19,13 +19,13 @@ class Transaction(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("users.id"), nullable=False, index=True
     )
     account_id: Mapped[int | None] = mapped_column(
-        ForeignKey("accounts.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("accounts.id"), nullable=True, index=True
     )
     category_id: Mapped[int | None] = mapped_column(
-        ForeignKey("categories.id", ondelete="SET NULL"), nullable=True
+        ForeignKey("categories.id"), nullable=True
     )
 
     description: Mapped[str] = mapped_column(String(500), nullable=False)

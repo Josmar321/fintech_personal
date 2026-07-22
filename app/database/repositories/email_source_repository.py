@@ -4,13 +4,13 @@ from typing import Sequence
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.base import BaseRepository
+from app.database.repositories.base import BaseRepository
 from app.database.models.email_source import EmailSource
 
 
 class EmailSourceRepository(BaseRepository[EmailSource]):
     def __init__(self, session: AsyncSession) -> None:
-        super().__init__(EmailSource, session)
+        super().__init__(session, EmailSource)
 
     async def get_active_sources(self) -> Sequence[EmailSource]:
         stmt = select(EmailSource).where(EmailSource.is_active == True)

@@ -27,6 +27,16 @@ class Message(BaseModel):
     model_config = {"populate_by_name": True}
 
 
+class CallbackQuery(BaseModel):
+    id: str
+    from_: TelegramUser = Field(alias="from")
+    message: Message | None = None
+    data: str | None = None
+
+    model_config = {"populate_by_name": True}
+
+
 class TelegramUpdate(BaseModel):
     update_id: int
     message: Message | None = None
+    callback_query: CallbackQuery | None = None

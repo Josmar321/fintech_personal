@@ -300,3 +300,6 @@ def _fetch_recent_emails_sync(source) -> list:
     except Exception:
         logger.exception("imap_fetch_failed", source_id=source.id)
         return []
+
+
+run_imap_worker = run_worker_loop

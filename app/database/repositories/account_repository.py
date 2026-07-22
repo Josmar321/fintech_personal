@@ -15,6 +15,7 @@ class AccountRepository(BaseRepository[Account]):
         result = await self.session.execute(
             select(Account)
             .where(Account.user_id == user_id)
+            .order_by(Account.id)
             .offset(skip)
             .limit(limit)
         )

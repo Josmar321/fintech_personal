@@ -5,13 +5,13 @@ from typing import Any, Sequence
 from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.base import BaseRepository
+from app.database.repositories.base import BaseRepository
 from app.database.models.transaction import Transaction
 
 
 class TransactionRepository(BaseRepository[Transaction]):
     def __init__(self, session: AsyncSession) -> None:
-        super().__init__(Transaction, session)
+        super().__init__(session, Transaction)
 
     async def get_by_user_id_and_id(
         self, user_id: int, transaction_id: int
