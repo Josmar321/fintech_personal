@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.endpoints import accounts, auth, categories, telegram_bot, transactions
+from app.api.endpoints import accounts, auth, categories, telegram_bot, transactions, yape
 from app.config import settings
 from app.core.logging import setup_logging
 from app.core.rate_limiter import RateLimitMiddleware
@@ -89,6 +89,7 @@ app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["accounts"]
 app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
 app.include_router(transactions.router, prefix="/api/v1/transactions", tags=["transactions"])
 app.include_router(telegram_bot.router, prefix="/api/telegram", tags=["telegram"])
+app.include_router(yape.router, prefix="/api/yape", tags=["yape"])
 
 
 @app.get("/health", tags=["system"])

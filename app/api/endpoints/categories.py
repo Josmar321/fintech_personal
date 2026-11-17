@@ -5,6 +5,7 @@ from app.api.dependencies import get_current_active_user, get_db
 from app.database.models.user import User
 from app.database.repositories.category_repository import CategoryRepository
 from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
+from app.services.category_service import seed_default_categories
 
 router = APIRouter()
 
@@ -75,6 +76,14 @@ async def update_category(
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     return await repo.update(category.id, **data.model_dump(exclude_unset=True))
+
+
+@router.post("/seed")
+async def seed_categories(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return await seed_default_categories(current_user.id, db)
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)

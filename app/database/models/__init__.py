@@ -3,5 +3,6 @@ from .account import Account
 from .category import Category
 from .transaction import Transaction
 from .email_source import EmailSource
+from .keyword_mapping import KeywordMapping
 
-__all__ = ["User", "Account", "Category", "Transaction", "EmailSource"]
+__all__ = ["User", "Account", "Category", "Transaction", "EmailSource", "KeywordMapping"]

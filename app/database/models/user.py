@@ -19,3 +19,4 @@ class User(Base, TimestampMixin):
     categories: Mapped[list["Category"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     email_sources: Mapped[list["EmailSource"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    keyword_mappings: Mapped[list["KeywordMapping"]] = relationship(back_populates="user", cascade="all, delete-orphan")

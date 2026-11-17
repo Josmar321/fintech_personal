@@ -18,6 +18,7 @@ class TransactionType(str, PyEnum):
 class CategoryType(str, PyEnum):
     INCOME = "income"
     EXPENSE = "expense"
+    CONDO = "condo"
     TRANSFER = "transfer"
     SAVINGS = "savings"
 
@@ -27,9 +28,11 @@ class TransactionSource(str, PyEnum):
     IMAP = "imap"
     API = "api"
     SYSTEM = "system"
+    YAPE = "yape"
 
 
 class TransactionStatus(str, PyEnum):
     PENDING_CATEGORY = "pending_category"
     CATEGORIZED = "categorized"
     FLAGGED = "flagged"
+    PENDING_CONDO_VALIDATION = "pending_condo_validation"

@@ -22,6 +22,14 @@ class TransactionRepository(BaseRepository[Transaction]):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_by_external_id(self, user_id: int, external_id: str) -> Transaction | None:
+        stmt = select(Transaction).where(
+            Transaction.user_id == user_id,
+            Transaction.external_id == external_id,
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_existing_pairs(
         self,
         user_id: int,

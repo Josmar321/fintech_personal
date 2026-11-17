@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, String, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, TimestampMixin
@@ -18,7 +18,7 @@ class Category(Base, TimestampMixin):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     type: Mapped[CategoryType] = mapped_column(String(20), nullable=False)
-    icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    icon: Mapped[str | None] = mapped_column(Unicode(50), nullable=True)
     color: Mapped[str | None] = mapped_column(String(7), nullable=True)
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
     is_system: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="0")

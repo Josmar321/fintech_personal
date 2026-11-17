@@ -47,11 +47,12 @@ class Transaction(Base, TimestampMixin):
         String(20), nullable=False, default="manual", server_default="manual"
     )
     status: Mapped[TransactionStatus] = mapped_column(
-        String(20),
+        String(50),
         nullable=False,
         default=TransactionStatus.PENDING_CATEGORY,
         server_default="pending_category",
     )
+    external_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     raw_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="transactions")
